@@ -1,11 +1,11 @@
-# Project [00] #AIAugustAppADay: [Project name]
+# Project 04 #AIAugustAppADay: AI Chatbot for Portfolio
 
-![Last Commit](https://img.shields.io/github/last-commit/davedonnellydev/nextjs-typescript-mantine-starter)  
+![Last Commit](https://img.shields.io/github/last-commit/davedonnellydev/ai-august-2025-04)  
 
-**📆 Date**: XX/Aug/2025  
-**🎯 Project Objective**: *[Write up any project objectives here]*   
-**🚀 Features**: *[Main features for MVP]*  
-**🛠️ Tech used**: *[Main tech used, including links to libraries/APIs]*  
+**📆 Date**: 05/Aug/2025  
+**🎯 Project Objective**: Add a chatbot to my portfolio website that answers questions about myself and my experience.   
+**🚀 Features**: Chat UI; Preload bot with my CV/portfolio data; Answer queries about me   
+**🛠️ Tech used**: Next.js, TypeScript, OpenAI API  
 **▶️ Live Demo**: *[https://your-demo-url.com](https://your-demo-url.com)*  
 *(Link will be added after deployment)*  
 
@@ -24,15 +24,15 @@ This project has been built as part of my AI August App-A-Day Challenge. You can
 
 ## 🧪 Testing
 
-![CI](https://github.com/davedonnellydev/nextjs-typescript-mantine-starter/actions/workflows/npm_test.yml/badge.svg) *[Link should be amended so that correct repo is specified]*  
+![CI](https://github.com/davedonnellydev/ai-august-2025-04/actions/workflows/npm_test.yml/badge.svg)  
 *Note: Test suite runs automatically with each push/merge.*  
 
 ## Quick Start
 
 1. **Clone and install:**
    ```bash
-   git clone https://github.com/davedonnellydev/nextjs-typescript-mantine-starter.git
-   cd nextjs-typescript-mantine-starter
+   git clone https://github.com/davedonnellydev/ai-august-2025-04.git
+   cd ai-august-2025-04
    npm install
    ```
 
@@ -113,5 +113,5 @@ import { Component } from '@/components/Component';  // instead of '../../../com
 
 
 ## 📜 License
-![GitHub License](https://img.shields.io/github/license/davedonnellydev/nextjs-typescript-mantine-starter)  
+![GitHub License](https://img.shields.io/github/license/davedonnellydev/ai-august-2025-04)  
 This project is licensed under the MIT License.  
