@@ -2,7 +2,7 @@
 
 ![Last Commit](https://img.shields.io/github/last-commit/davedonnellydev/ai-august-2025-04)  
 
-**📆 Date**: 05/Aug/2025  
+**📆 Date**: 06/Aug/2025  
 **🎯 Project Objective**: Add a chatbot to my portfolio website that answers questions about myself and my experience.   
 **🚀 Features**: Chat UI; Preload bot with my CV/portfolio data; Answer queries about me   
 **🛠️ Tech used**: Next.js, TypeScript, OpenAI API  
