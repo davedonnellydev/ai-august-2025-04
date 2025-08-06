@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { IconMessageCircle, IconX } from '@tabler/icons-react';
 import { Box, Button, Group, ScrollArea, Text, Textarea, Tooltip } from '@mantine/core';
 import { PreviousResponse } from '@/app/lib/api/types';
@@ -16,6 +16,7 @@ export function ChatWindow() {
   const [previousResponseId, setPreviousResponseId] = useState<string | null>(null);
   const [inputItems, setInputItems] = useState<PreviousResponse[]>([]);
   const [isMinimized, setIsMinimized] = useState(true);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Update remaining requests on component mount and after translations
   useEffect(() => {
@@ -35,11 +36,34 @@ export function ChatWindow() {
       getInputItemList(previousResponseId).then((itemList) => {
         if (itemList) {
           setInputItems(itemList);
-          console.log(itemList);
         }
       });
     }
   }, [previousResponseId]);
+
+  // adds most recent response from AI to inputItemsList if it exists
+
+  useEffect(() => {
+    if (previousResponseId) {
+      getPreviousResponse(previousResponseId).then((itemList) => {
+        if (itemList && itemList.length > 1) {
+          setResponse(
+            itemList[itemList.length - 1].content[itemList[itemList.length - 1].content.length - 1]
+              .text
+          );
+          itemList.pop();
+          setInputItems((prevItems) => [...prevItems, ...itemList]);
+        } else if (itemList && itemList.length === 1) {
+          setResponse(itemList[0].content[itemList[itemList.length - 1].content.length - 1].text);
+        }
+      });
+    }
+  }, [previousResponseId]);
+
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [inputItems, response, error]);
 
   const getInputItemList = async (previous_response_id: string) => {
     if (!previous_response_id) {
@@ -63,6 +87,36 @@ export function ChatWindow() {
 
       const result = await response.json();
       return result.data;
+
+      // Update remaining requests after successful translation
+    } catch (err) {
+      console.error('API error:', err);
+      setError(err instanceof Error ? err.message : 'API failed');
+    }
+  };
+
+  const getPreviousResponse = async (previous_response_id: string) => {
+    if (!previous_response_id) {
+      setError('No previous_response_id set');
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/openai/responses/${previous_response_id}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.log(errorData);
+        throw new Error(errorData.error || 'API call failed');
+      }
+
+      const result = await response.json();
+      return result.output;
 
       // Update remaining requests after successful translation
     } catch (err) {
@@ -114,6 +168,9 @@ export function ChatWindow() {
       }
       console.log(result.responseObject);
       setResponse(result.response);
+
+      // Clear the input after successful message send
+      setInput('');
 
       // Update remaining requests after successful translation
       setRemainingRequests(ClientRateLimiter.getRemainingRequests());
@@ -236,6 +293,9 @@ export function ChatWindow() {
                 </Text>
               </Box>
             )}
+
+            {/* Invisible element to scroll to */}
+            <div ref={messagesEndRef} />
           </ScrollArea>
 
           {/* Input Area */}
