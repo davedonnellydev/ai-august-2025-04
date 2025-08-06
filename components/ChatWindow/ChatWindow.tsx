@@ -45,15 +45,18 @@ export function ChatWindow() {
 
   useEffect(() => {
     if (previousResponseId) {
-        getPreviousResponse(previousResponseId).then((itemList) => {
-            if (itemList.length > 1) {
-                setResponse(itemList[itemList.length - 1].content[itemList[itemList.length - 1].content.length - 1].text);
-                itemList.pop();
-                setInputItems(prevItems => [...prevItems, ...itemList]);
-            } else if (itemList.length === 1) {
-                setResponse(itemList[0].content[itemList[itemList.length - 1].content.length - 1].text);
-            }
-        });
+      getPreviousResponse(previousResponseId).then((itemList) => {
+        if (itemList && itemList.length > 1) {
+          setResponse(
+            itemList[itemList.length - 1].content[itemList[itemList.length - 1].content.length - 1]
+              .text
+          );
+          itemList.pop();
+          setInputItems((prevItems) => [...prevItems, ...itemList]);
+        } else if (itemList && itemList.length === 1) {
+          setResponse(itemList[0].content[itemList[itemList.length - 1].content.length - 1].text);
+        }
+      });
     }
   }, [previousResponseId]);
 
@@ -94,33 +97,33 @@ export function ChatWindow() {
 
   const getPreviousResponse = async (previous_response_id: string) => {
     if (!previous_response_id) {
-        setError('No previous_response_id set');
-        return;
+      setError('No previous_response_id set');
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/openai/responses/${previous_response_id}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.log(errorData);
+        throw new Error(errorData.error || 'API call failed');
       }
 
-      try {
-        const response = await fetch(`/api/openai/responses/${previous_response_id}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
+      const result = await response.json();
+      return result.output;
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          console.log(errorData);
-          throw new Error(errorData.error || 'API call failed');
-        }
-
-        const result = await response.json();
-        return result.output;
-
-        // Update remaining requests after successful translation
-      } catch (err) {
-        console.error('API error:', err);
-        setError(err instanceof Error ? err.message : 'API failed');
-      }
-  }
+      // Update remaining requests after successful translation
+    } catch (err) {
+      console.error('API error:', err);
+      setError(err instanceof Error ? err.message : 'API failed');
+    }
+  };
 
   const handleRequest = async () => {
     if (!input.trim()) {

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import fs from 'fs/promises';
 import OpenAI from 'openai';
 import { MODEL } from '@/app/config/constants';
 import { InputValidator, ServerRateLimiter } from '@/app/lib/utils/api-helpers';
@@ -59,9 +60,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const instructions: string =
-      'You are a helpful assistant who knows general knowledge about the world. Keep your responses to one or two sentances, maximum.';
-    console.log(previous_response_id);
+    const instructions = await fs.readFile('app/api/openai/instructions.txt', 'utf-8');
+
     const response = await client.responses.create({
       model: MODEL,
       instructions,
