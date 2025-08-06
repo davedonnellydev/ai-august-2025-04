@@ -4,7 +4,7 @@
 
 **📆 Date**: 06/Aug/2025  
 **🎯 Project Objective**: Add a chatbot to my portfolio website that answers questions about myself and my experience.   
-**🚀 Features**: Chat UI; Preload bot with my CV/portfolio data; Answer queries about me   
+**🚀 Features**: Chat UI; Preload bot with my CV/portfolio data; Answer queries about me. Stretch goals: cv/portfolio data to be updatable, can install on any website...   
 **🛠️ Tech used**: Next.js, TypeScript, OpenAI API  
 **▶️ Live Demo**: *[https://your-demo-url.com](https://your-demo-url.com)*  
 *(Link will be added after deployment)*  
