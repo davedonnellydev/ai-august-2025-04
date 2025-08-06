@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs/promises';
 import OpenAI from 'openai';
-import { MODEL } from '@/app/config/constants';
+import { CHAT_INSTRUCTIONS, MODEL } from '@/app/config/constants/openai';
+import { ERROR_MESSAGES } from '@/app/config/constants/validation';
 import { InputValidator, ServerRateLimiter } from '@/app/lib/utils/api-helpers';
 
 export async function POST(request: NextRequest) {
@@ -12,10 +12,7 @@ export async function POST(request: NextRequest) {
 
     // Server-side rate limiting
     if (!ServerRateLimiter.checkLimit(ip)) {
-      return NextResponse.json(
-        { error: 'Rate limit exceeded. Please try again later.' },
-        { status: 429 }
-      );
+      return NextResponse.json({ error: ERROR_MESSAGES.RATE_LIMIT_EXCEEDED }, { status: 429 });
     }
 
     const { input, previous_response_id } = await request.json();
@@ -30,10 +27,7 @@ export async function POST(request: NextRequest) {
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
       console.error('OpenAI API key not configured');
-      return NextResponse.json(
-        { error: 'Translation service temporarily unavailable' },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: ERROR_MESSAGES.API_UNAVAILABLE }, { status: 500 });
     }
 
     const client = new OpenAI({
@@ -60,7 +54,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const instructions = await fs.readFile('app/api/openai/instructions.txt', 'utf-8');
+    const instructions = CHAT_INSTRUCTIONS;
 
     const response = await client.responses.create({
       model: MODEL,

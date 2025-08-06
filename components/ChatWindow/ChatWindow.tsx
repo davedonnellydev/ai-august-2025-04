@@ -62,8 +62,25 @@ export function ChatWindow() {
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    // Add a small delay to ensure DOM is updated before scrolling
+    const timeoutId = setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
+
+    return () => clearTimeout(timeoutId);
   }, [inputItems, response, error]);
+
+  // Auto-scroll when chat window is opened
+  useEffect(() => {
+    if (!isMinimized) {
+      // Add a longer delay when opening the chat window to ensure all content is loaded
+      const timeoutId = setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }, 300);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [isMinimized]);
 
   const getInputItemList = async (previous_response_id: string) => {
     if (!previous_response_id) {

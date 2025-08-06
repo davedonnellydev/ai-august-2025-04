@@ -614,5 +614,74 @@ describe('ChatWindow component', () => {
         expect(mockScrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth' });
       });
     });
+
+    it('scrolls to bottom when chat window is opened with previous messages', async () => {
+      const mockScrollIntoView = jest.fn();
+
+      // Mock the scrollIntoView method
+      Object.defineProperty(window.HTMLElement.prototype, 'scrollIntoView', {
+        writable: true,
+        value: mockScrollIntoView,
+      });
+
+      localStorageMock.getItem.mockReturnValue('previous-id-123');
+
+      const mockFetch = fetch as jest.MockedFunction<typeof fetch>;
+      // Mock the input_items API call
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          data: [
+            {
+              id: 'msg-1',
+              type: 'message',
+              status: 'completed',
+              content: [
+                {
+                  type: 'input_text',
+                  text: 'Previous message',
+                },
+              ],
+              role: 'user',
+            },
+          ],
+        }),
+      } as Response);
+
+      // Mock the previous response API call
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          output: [
+            {
+              id: 'msg-2',
+              type: 'message',
+              status: 'completed',
+              content: [
+                {
+                  type: 'input_text',
+                  text: 'AI response message',
+                },
+              ],
+              role: 'assistant',
+            },
+          ],
+        }),
+      } as Response);
+
+      const user = userEvent.setup();
+      render(<ChatWindow />);
+
+      const chatButton = screen.getByLabelText('Open chat assistant');
+      await user.click(chatButton);
+
+      // Wait for the scroll to happen after the chat window opens
+      await waitFor(
+        () => {
+          expect(mockScrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth' });
+        },
+        { timeout: 1000 }
+      );
+    });
   });
 });

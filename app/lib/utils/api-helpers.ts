@@ -1,4 +1,4 @@
-import { MAX_REQUESTS, STORAGE_WINDOW_MS } from '@/app/config/constants';
+import { MAX_REQUESTS, STORAGE_WINDOW_MS } from '@/app/config/constants/openai';
 
 // Cache implementation for API responses
 class ApiCache {
