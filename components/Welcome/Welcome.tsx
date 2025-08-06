@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { Button, Text, TextInput, Title } from '@mantine/core';
-import { ClientRateLimiter } from '@/app/lib/utils/api-helpers';
 import { PreviousResponse } from '@/app/lib/api/types';
+import { ClientRateLimiter } from '@/app/lib/utils/api-helpers';
 import classes from './Welcome.module.css';
 
 export function Welcome() {
@@ -13,7 +13,7 @@ export function Welcome() {
   const [error, setError] = useState('');
   const [remainingRequests, setRemainingRequests] = useState(0);
   const [previousResponseId, setPreviousResponseId] = useState<string | null>(null);
-  const [inputItems, setInputItems] = useState<PreviousResponse[]>([])
+  const [inputItems, setInputItems] = useState<PreviousResponse[]>([]);
 
   // Update remaining requests on component mount and after translations
   useEffect(() => {
@@ -22,55 +22,54 @@ export function Welcome() {
     }
   }, []);
 
-    // set previousResponseId if it exists in localStorage
-    useEffect(() => {
-        if (localStorage.getItem('previous_response_id')) {
-          setPreviousResponseId(localStorage.getItem('previous_response_id'));
+  // set previousResponseId if it exists in localStorage
+  useEffect(() => {
+    if (localStorage.getItem('previous_response_id')) {
+      setPreviousResponseId(localStorage.getItem('previous_response_id'));
+    }
+  }, []);
+
+  // set inputItemsList if it exists
+  useEffect(() => {
+    if (previousResponseId) {
+      getInputItemList(previousResponseId).then((itemList) => {
+        if (itemList) {
+          setInputItems(itemList);
+          console.log(itemList);
         }
-      }, []);
+      });
+    }
+  }, [previousResponseId]);
 
-    // set inputItemsList if it exists
-    useEffect(() => {
-        if (previousResponseId) {
-            getInputItemList(previousResponseId).then(itemList => {
-                if (itemList) {
-                    setInputItems(itemList);
-                    console.log(itemList);
-                }
-            });
-        }
-      }, [previousResponseId]);
-
-
-  const getInputItemList = async (previous_response_id:string) => {
+  const getInputItemList = async (previous_response_id: string) => {
     if (!previous_response_id) {
-        setError('No previous_response_id set');
-        return;
+      setError('No previous_response_id set');
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/openai/responses/${previous_response_id}/input_items`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.log(errorData);
+        throw new Error(errorData.error || 'API call failed');
       }
 
-      try {
-        const response = await fetch(`/api/openai/responses/${previous_response_id}/input_items`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
+      const result = await response.json();
+      return result.data;
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          console.log(errorData);
-          throw new Error(errorData.error || 'API call failed');
-        }
-
-        const result = await response.json();
-        return result.data;
-
-        // Update remaining requests after successful translation
-      } catch (err) {
-        console.error('API error:', err);
-        setError(err instanceof Error ? err.message : 'API failed');
-      }
-  }
+      // Update remaining requests after successful translation
+    } catch (err) {
+      console.error('API error:', err);
+      setError(err instanceof Error ? err.message : 'API failed');
+    }
+  };
 
   const handleRequest = async () => {
     if (!input.trim()) {
@@ -140,6 +139,28 @@ export function Welcome() {
           Starter
         </Text>
       </Title>
+
+      {inputItems.length > 0 && (
+        <div style={{ maxWidth: 600, margin: '20px auto', padding: '20px' }}>
+          <Text size="lg" fw={500} mb="md">
+            Previous Conversation:
+          </Text>
+          <ul style={{ listStyle: 'none', padding: 0 }}>
+            {inputItems.map((item, index) => {
+              if (item.type === 'message') {
+                return item.content.map((content, contentIndex) => (
+                  <li key={`${index}-${contentIndex}`} style={{ marginBottom: '8px' }}>
+                    <Text size="sm" c="dimmed">
+                      {item.role} ({content.type}): {content.text}
+                    </Text>
+                  </li>
+                ));
+              }
+              return null;
+            })}
+          </ul>
+        </div>
+      )}
 
       <div style={{ maxWidth: 600, margin: '20px auto', padding: '20px' }}>
         <TextInput
