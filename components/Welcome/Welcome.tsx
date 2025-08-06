@@ -11,13 +11,13 @@ export function Welcome() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [remainingRequests, setRemainingRequests] = useState(0);
-  const [previousResponseId, setPreviousResponseId ] = useState<string | null>(null)
+  const [previousResponseId, setPreviousResponseId] = useState<string | null>(null);
 
   // Update remaining requests on component mount and after translations
   useEffect(() => {
     setRemainingRequests(ClientRateLimiter.getRemainingRequests());
-    if(localStorage.getItem('previous_response_id')) {
-        setPreviousResponseId(localStorage.getItem('previous_response_id'));
+    if (localStorage.getItem('previous_response_id')) {
+      setPreviousResponseId(localStorage.getItem('previous_response_id'));
     }
   }, []);
 
@@ -37,7 +37,6 @@ export function Welcome() {
     setIsLoading(true);
     setError('');
 
-
     try {
       const response = await fetch('/api/openai/responses', {
         method: 'POST',
@@ -46,7 +45,7 @@ export function Welcome() {
         },
         body: JSON.stringify({
           input,
-          previous_response_id: previousResponseId
+          previous_response_id: previousResponseId,
         }),
       });
 

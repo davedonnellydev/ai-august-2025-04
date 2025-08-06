@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
       model: MODEL,
       instructions,
       input,
-      previous_response_id
+      previous_response_id,
     });
 
     if (response.status !== 'completed') {
