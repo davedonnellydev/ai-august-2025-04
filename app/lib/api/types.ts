@@ -6,6 +6,20 @@ export interface ApiResponse<T = any> {
   status: number;
 }
 
+// Previous response types
+export interface PreviousResponseContent {
+  type: string;
+  text: string;
+}
+
+export interface PreviousResponse {
+  id: string;
+  type: string;
+  status: string;
+  content: PreviousResponseContent[];
+  role: string;
+}
+
 // Error types
 export interface ApiError {
   message: string;

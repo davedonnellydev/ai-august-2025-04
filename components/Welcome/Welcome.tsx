@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Button, Text, TextInput, Title } from '@mantine/core';
 import { ClientRateLimiter } from '@/app/lib/utils/api-helpers';
+import { PreviousResponse } from '@/app/lib/api/types';
 import classes from './Welcome.module.css';
 
 export function Welcome() {
@@ -12,14 +13,64 @@ export function Welcome() {
   const [error, setError] = useState('');
   const [remainingRequests, setRemainingRequests] = useState(0);
   const [previousResponseId, setPreviousResponseId] = useState<string | null>(null);
+  const [inputItems, setInputItems] = useState<PreviousResponse[]>([])
 
   // Update remaining requests on component mount and after translations
   useEffect(() => {
-    setRemainingRequests(ClientRateLimiter.getRemainingRequests());
     if (localStorage.getItem('previous_response_id')) {
       setPreviousResponseId(localStorage.getItem('previous_response_id'));
     }
   }, []);
+
+    // set previousResponseId if it exists in localStorage
+    useEffect(() => {
+        if (localStorage.getItem('previous_response_id')) {
+          setPreviousResponseId(localStorage.getItem('previous_response_id'));
+        }
+      }, []);
+
+    // set inputItemsList if it exists
+    useEffect(() => {
+        if (previousResponseId) {
+            getInputItemList(previousResponseId).then(itemList => {
+                if (itemList) {
+                    setInputItems(itemList);
+                    console.log(itemList);
+                }
+            });
+        }
+      }, [previousResponseId]);
+
+
+  const getInputItemList = async (previous_response_id:string) => {
+    if (!previous_response_id) {
+        setError('No previous_response_id set');
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/openai/responses/${previous_response_id}/input_items`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.log(errorData);
+          throw new Error(errorData.error || 'API call failed');
+        }
+
+        const result = await response.json();
+        return result.data;
+
+        // Update remaining requests after successful translation
+      } catch (err) {
+        console.error('API error:', err);
+        setError(err instanceof Error ? err.message : 'API failed');
+      }
+  }
 
   const handleRequest = async () => {
     if (!input.trim()) {
