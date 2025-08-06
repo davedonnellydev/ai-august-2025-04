@@ -122,6 +122,8 @@ describe('ChatWindow component', () => {
             previous_response_id: null,
           }),
         });
+        // Verify input is cleared after successful send
+        expect(input).toHaveValue('');
       });
     });
 
@@ -193,6 +195,8 @@ describe('ChatWindow component', () => {
 
       await waitFor(() => {
         expect(screen.getByText('Error: API Error')).toBeInTheDocument();
+        // Verify input is NOT cleared when there's an error
+        expect(input).toHaveValue('Hello');
       });
     });
 
@@ -218,6 +222,8 @@ describe('ChatWindow component', () => {
           'previous_response_id',
           'test-id-123'
         );
+        // Verify input is cleared after successful send
+        expect(input).toHaveValue('');
       });
     });
   });
@@ -359,6 +365,46 @@ describe('ChatWindow component', () => {
       expect(screen.getByLabelText('Send message')).toBeInTheDocument();
       expect(screen.getByLabelText('Reset conversation')).toBeInTheDocument();
       expect(screen.getByLabelText('Minimize chat')).toBeInTheDocument();
+    });
+  });
+
+  describe('Auto-scroll functionality', () => {
+    beforeEach(async () => {
+      const user = userEvent.setup();
+      render(<ChatWindow />);
+
+      const chatButton = screen.getByLabelText('Open chat assistant');
+      await user.click(chatButton);
+    });
+
+    it('scrolls to bottom when new messages are added', async () => {
+      const mockScrollIntoView = jest.fn();
+
+      // Mock the scrollIntoView method
+      Object.defineProperty(window.HTMLElement.prototype, 'scrollIntoView', {
+        writable: true,
+        value: mockScrollIntoView,
+      });
+
+      const mockFetch = fetch as jest.MockedFunction<typeof fetch>;
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          response: 'Test response',
+          responseId: 'test-id-123',
+        }),
+      } as Response);
+
+      const user = userEvent.setup();
+      const input = screen.getByLabelText('Type your message');
+      const sendButton = screen.getByLabelText('Send message');
+
+      await user.type(input, 'Hello');
+      await user.click(sendButton);
+
+      await waitFor(() => {
+        expect(mockScrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth' });
+      });
     });
   });
 });
