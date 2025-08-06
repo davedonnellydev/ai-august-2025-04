@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { input } = await request.json();
+    const { input, previous_response_id } = await request.json();
 
     // Enhanced validation
     const textValidation = InputValidator.validateText(input, 2000);
@@ -61,11 +61,12 @@ export async function POST(request: NextRequest) {
 
     const instructions: string =
       'You are a helpful assistant who knows general knowledge about the world. Keep your responses to one or two sentances, maximum.';
-
+    console.log(previous_response_id);
     const response = await client.responses.create({
       model: MODEL,
       instructions,
       input,
+      previous_response_id,
     });
 
     if (response.status !== 'completed') {
@@ -73,7 +74,9 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({
+      responseId: response.id,
       response: response.output_text || 'Response recieved',
+      responseObject: response,
       originalInput: input,
       remainingRequests: ServerRateLimiter.getRemaining(ip),
     });
