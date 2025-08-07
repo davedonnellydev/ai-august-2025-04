@@ -6,18 +6,25 @@
 **🎯 Project Objective**: Add a chatbot to my portfolio website that answers questions about myself and my experience.   
 **🚀 Features**: Chat UI; Preload bot with my CV/portfolio data; Answer queries about me. Stretch goals: cv/portfolio data to be updatable, can install on any website...   
 **🛠️ Tech used**: Next.js, TypeScript, OpenAI API  
-**▶️ Live Demo**: *[https://your-demo-url.com](https://your-demo-url.com)*  
-*(Link will be added after deployment)*  
+**▶️ Live Demo**: *[https://dave-donnelly-ai-august-04.netlify.app/](https://dave-donnelly-ai-august-04.netlify.app/)*  
 
 ## 🗒️ Summary
-**Lessons learned**  
-*A little summary of learnings*  
 
-**Blockers**  
-*Note any blockers here*  
+Probably the most polished project I’ve done so far, and one that surfaced some interesting challenges — especially around storing and retrieving previous responses. Handling the chat flow itself was fairly straightforward per session, but I wanted users to be able to close the site and return later to pick up where they left off. You can see here where my planning started off: [ai-august-2025-04.drawio.png](./ai-august-2025-04.drawio.png).  
+
+OpenAI’s Responses API automatically stores responses for up to 30 days, and each response includes a unique ID. I stored that `previous_response_id` in `localStorage`, updating it whenever a new message came through. When the user reloads the page, the app uses that stored ID to retrieve previous responses via another API call and populate the chat window. It works well, though it did leave me wondering about the trade-offs — namely, how many API calls are too many, and when it makes more sense to store things locally vs. repeatedly querying OpenAI. Based on token/credit usage during testing, the impact seemed minimal, but it’s something I’ll want to monitor over time.  
+
+This was also my first time implementing a chat window UI. I had to think through all the little details that make a chat interface feel intuitive — clearing the input after sending a message, automatically scrolling to the bottom of the chat window when the window opens, differentiating between user and assistant messages, etc. It gave me a newfound appreciation for all the UX polish that goes into even the simplest chat apps.  
+
+The last major piece of the puzzle was prompt engineering. I needed to feed the API a detailed set of instructions so the assistant could reliably answer questions about the portfolio owner (in this example, me!). To do this, I moved the instructions into a separate file and structured them into sections: defining the assistant’s identity, sharing relevant background info about me, and setting clear guidelines for how to respond (including tone, format, examples). It was a helpful exercise in clarity and specificity — and a good reminder that the quality of AI output is only as good as the inputs you provide.  
+
+**Lessons learned**  
+- OpenAI’s Responses API makes it surprisingly easy to persist history — but you still need to plan how and when to store vs. re-fetch data.  
+- UI polish matters. Things like scrolling behavior and input management are small touches that make the experience feel complete.  
+- Prompt engineering is a beast. The more effort you put into structuring your instructions clearly, the better the assistant performs.  
 
 **Final thoughts**  
-*Any final thoughts here*  
+I feel like I'm gaining traction. The app worked, the polish was there, and the prompt setup gave me a scalable way to expand and refine the assistant’s knowledge and tone. I’m starting to feel a real rhythm with these daily builds... let’s see what tomorrow brings!  
 
 
 This project has been built as part of my AI August App-A-Day Challenge. You can read more information on the full project here: [https://github.com/davedonnellydev/ai-august-2025-challenge](https://github.com/davedonnellydev/ai-august-2025-challenge).  
